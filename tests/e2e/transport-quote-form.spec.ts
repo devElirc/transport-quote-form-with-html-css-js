@@ -100,6 +100,32 @@ test("reverse route direction resolves to the same distance", async ({ page }) =
   await expect(page.getByText(expectedCurrency)).toBeVisible();
 });
 
+test("reverse route lookup also normalizes whitespace and casing", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("textbox", { name: "Pickup" }).fill("  HOUSTON  ");
+  await page.getByRole("textbox", { name: "Delivery" }).fill(" los   angeles ");
+  await page.getByRole("button", { name: "VEHICLE DETAILS" }).click();
+
+  const currentYear = new Date().getFullYear();
+  const quotedYear = currentYear - 4;
+  const expectedQuote = 425 + 1547 * 0.78 + (currentYear - quotedYear) * 12;
+  const expectedCurrency = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Math.round(expectedQuote));
+
+  await page.getByRole("combobox", { name: "Vehicle Year" }).fill(String(quotedYear));
+  await page.getByRole("combobox", { name: "Vehicle Make" }).selectOption("Toyota");
+  await page.getByRole("combobox", { name: "Vehicle Model" }).selectOption("Corolla");
+  await page.getByRole("button", { name: "SAVE Calculate Cost" }).click();
+
+  await expect(page.getByText("Houston to Los Angeles")).toBeVisible();
+  await expect(page.getByText(`${quotedYear} Toyota Corolla`)).toBeVisible();
+  await expect(page.getByText(expectedCurrency)).toBeVisible();
+});
+
 test("changing the make resets model selection and hides the existing quote", async ({ page }) => {
   await page.goto("/");
 
@@ -189,6 +215,54 @@ test("clearing the vehicle make disables models and restores the default model o
   await expect(modelSelect.locator("option")).toHaveText(["Select model"]);
 });
 
+test("a tampered model option is rejected because it is not a real model", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("textbox", { name: "Pickup" }).fill("Los Angeles");
+  await page.getByRole("textbox", { name: "Delivery" }).fill("Houston");
+  await page.getByRole("button", { name: "VEHICLE DETAILS" }).click();
+
+  const currentYear = new Date().getFullYear();
+  await page.getByRole("combobox", { name: "Vehicle Year" }).fill(String(currentYear - 2));
+  await page.getByRole("combobox", { name: "Vehicle Make" }).selectOption("Toyota");
+
+  await page.locator("#vehicle-model").evaluate((select) => {
+    const option = document.createElement("option");
+    option.value = "Counterfeit";
+    option.textContent = "Counterfeit";
+    select.appendChild(option);
+  });
+  await page.getByRole("combobox", { name: "Vehicle Model" }).selectOption("Counterfeit");
+  await page.getByRole("button", { name: "SAVE Calculate Cost" }).click();
+
+  await expect(page.getByText(/Please select a valid year, make, and model\.?/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Estimated transport quote" })).toBeHidden();
+});
+
+test("current-year vehicles do not add an age adjustment to the quote", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("textbox", { name: "Pickup" }).fill("Los Angeles");
+  await page.getByRole("textbox", { name: "Delivery" }).fill("Houston");
+  await page.getByRole("button", { name: "VEHICLE DETAILS" }).click();
+
+  const currentYear = new Date().getFullYear();
+  const expectedQuote = 425 + 1547 * 0.78;
+  const expectedCurrency = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Math.round(expectedQuote));
+
+  await page.getByRole("combobox", { name: "Vehicle Year" }).fill(String(currentYear));
+  await page.getByRole("combobox", { name: "Vehicle Make" }).selectOption("Toyota");
+  await page.getByRole("combobox", { name: "Vehicle Model" }).selectOption("Tacoma");
+  await page.getByRole("button", { name: "SAVE Calculate Cost" }).click();
+
+  await expect(page.getByText(`${currentYear} Toyota Tacoma`)).toBeVisible();
+  await expect(page.getByText(expectedCurrency)).toBeVisible();
+});
+
 test("step 1 validates blank locations before unlocking step 2", async ({ page }) => {
   await page.goto("/");
 
@@ -196,4 +270,16 @@ test("step 1 validates blank locations before unlocking step 2", async ({ page }
 
   await expect(page.getByText(/Please enter both pickup and delivery locations\.?/)).toBeVisible();
   await expect(page.getByRole("tab", { name: /vehicle/i })).toBeDisabled();
+});
+
+test("step 1 treats whitespace-only locations as blank after trimming", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("textbox", { name: "Pickup" }).fill("     ");
+  await page.getByRole("textbox", { name: "Delivery" }).fill("Houston");
+  await page.getByRole("button", { name: "VEHICLE DETAILS" }).click();
+
+  await expect(page.getByText(/Please enter both pickup and delivery locations\.?/)).toBeVisible();
+  await expect(page.getByRole("tab", { name: /vehicle/i })).toBeDisabled();
+  await expect(page.getByRole("heading", { name: /^Transport car pickup and destination\.?$/ })).toBeVisible();
 });
