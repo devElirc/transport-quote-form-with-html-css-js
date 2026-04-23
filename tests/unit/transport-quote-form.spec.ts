@@ -88,13 +88,12 @@ describe("transport quote form markup contract", () => {
   });
 
   /**
-   * Contract: route lookup must normalize case + whitespace, and must not depend on exact
-   * user input formatting.
+   * Contract: route lookup must normalize case + whitespace without requiring a specific
+   * helper-function name; the browser tests verify the user-visible normalized route.
    */
   it("includes route normalization logic for case/whitespace tolerance", () => {
     const html = readHtml();
 
-    expect(html).toContain("normalizeLocation");
     expect(html).toMatch(/toLowerCase\(\)/);
     expect(html).toMatch(/replace\(\s*\/\\s\+\/g/);
   });

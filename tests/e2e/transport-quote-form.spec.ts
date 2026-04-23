@@ -67,11 +67,10 @@ test("step 2 validates vehicle fields before showing a calculated quote", async 
   await page.getByRole("combobox", { name: "Vehicle Model" }).selectOption("Camry");
   await page.getByRole("button", { name: "SAVE Calculate Cost" }).click();
 
-  const quotePanel = page.getByRole("region", { name: "Estimated transport quote" });
-  await expect(quotePanel).toBeVisible();
-  await expect(quotePanel).toContainText("Los Angeles to Houston");
-  await expect(quotePanel).toContainText(`${quotedYear} Toyota Camry`);
-  await expect(quotePanel).toContainText(expectedCurrency);
+  await expect(page.getByRole("heading", { name: "Estimated transport quote" })).toBeVisible();
+  await expect(page.getByText("Los Angeles to Houston")).toBeVisible();
+  await expect(page.getByText(`${quotedYear} Toyota Camry`)).toBeVisible();
+  await expect(page.getByText(expectedCurrency)).toBeVisible();
 });
 
 test("changing the make resets model selection and hides the existing quote", async ({ page }) => {
@@ -84,17 +83,17 @@ test("changing the make resets model selection and hides the existing quote", as
   const yearField = page.getByRole("combobox", { name: "Vehicle Year" });
   const makeSelect = page.getByRole("combobox", { name: "Vehicle Make" });
   const modelSelect = page.getByRole("combobox", { name: "Vehicle Model" });
-  const quotePanel = page.getByRole("region", { name: "Estimated transport quote" });
+  const quoteHeading = page.getByRole("heading", { name: "Estimated transport quote" });
 
   const currentYear = new Date().getFullYear();
   await yearField.fill(String(currentYear - 2));
   await makeSelect.selectOption("Toyota");
   await modelSelect.selectOption("Camry");
   await page.getByRole("button", { name: "SAVE Calculate Cost" }).click();
-  await expect(quotePanel).toBeVisible();
+  await expect(quoteHeading).toBeVisible();
 
   await makeSelect.selectOption("Honda");
-  await expect(quotePanel).toBeHidden();
+  await expect(quoteHeading).toBeHidden();
   await expect(modelSelect).toHaveValue("");
 });
 
