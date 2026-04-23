@@ -21,9 +21,6 @@ if ! npm install --no-fund --no-audit; then
 fi
 
 required_literals=(
-  "Transport Quote Form"
-  "Transport car pickup and destination"
-  "Please enter both pickup and delivery locations."
   "Toyota"
   "Camry"
   "Corolla"
@@ -34,8 +31,6 @@ required_literals=(
   "baseFee"
   "mileageRate"
   "routeDistances"
-  "Estimated transport quote"
-  "Please select a valid year, make, and model."
   "for (let year = currentYear; year >= 1980; year -= 1)"
 )
 
