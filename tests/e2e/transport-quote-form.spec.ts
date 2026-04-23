@@ -17,14 +17,14 @@ test("step 1 is shown first and future steps stay locked", async ({ page }) => {
 test("users can progress to vehicle details and load dependent models", async ({ page }) => {
   await page.goto("/");
 
-  await page.getByLabel("Pickup").fill("Los Angeles");
-  await page.getByLabel("Delivery").fill("Houston");
+  await page.getByRole("textbox", { name: "Pickup" }).fill("Los Angeles");
+  await page.getByRole("textbox", { name: "Delivery" }).fill("Houston");
   await page.getByRole("button", { name: "VEHICLE DETAILS" }).click();
 
   const vehicleTab = page.getByRole("tab", { name: /vehicle/i });
-  const yearField = page.getByLabel("Vehicle Year");
-  const makeSelect = page.getByLabel("Vehicle Make");
-  const modelSelect = page.getByLabel("Vehicle Model");
+  const yearField = page.getByRole("combobox", { name: "Vehicle Year" });
+  const makeSelect = page.getByRole("combobox", { name: "Vehicle Make" });
+  const modelSelect = page.getByRole("combobox", { name: "Vehicle Model" });
 
   await expect(vehicleTab).toHaveAttribute("aria-selected", "true");
   await expect(page.getByRole("heading", { name: /vehicle details/i })).toBeVisible();
