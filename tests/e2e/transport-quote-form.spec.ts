@@ -51,7 +51,7 @@ test("step 2 validates vehicle fields before showing a calculated quote", async 
   await page.getByRole("button", { name: "VEHICLE DETAILS" }).click();
 
   await page.getByRole("button", { name: "SAVE Calculate Cost" }).click();
-  await expect(page.getByText("Please select a valid year, make, and model.")).toBeVisible();
+  await expect(page.getByText(/Please select a valid year, make, and model\.?/)).toBeVisible();
 
   const currentYear = new Date().getFullYear();
   const quotedYear = currentYear - 2;
@@ -102,6 +102,6 @@ test("step 1 validates blank locations before unlocking step 2", async ({ page }
 
   await page.getByRole("button", { name: "VEHICLE DETAILS" }).click();
 
-  await expect(page.getByText("Please enter both pickup and delivery locations.")).toBeVisible();
+  await expect(page.getByText(/Please enter both pickup and delivery locations\.?/)).toBeVisible();
   await expect(page.getByRole("tab", { name: /vehicle/i })).toBeDisabled();
 });

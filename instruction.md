@@ -14,7 +14,7 @@ Inside a bordered box, add two stacked input fields: Pickup with a small search 
 On the actual inputs, use aria-label="Pickup" and aria-label="Delivery".
 Below the inputs, add a full-width green button labeled exactly VEHICLE DETAILS.
 When the user clicks the button, move to Step 2 only if both inputs have text after trimming spaces. 
-If not, stay on Step 1 and show this exact message: Please enter both pickup and delivery locations.
+If not, stay on Step 1 and show this message: Please enter both pickup and delivery locations. A trailing period is acceptable but not required.
 
 Step 2 should show a heading that includes Vehicle details.
 Add a Vehicle Year field with aria-label="Vehicle Year" and list="vehicle-year-options".
@@ -34,7 +34,7 @@ Under the fields, add a button with this exact text: SAVE Calculate Cost.
 
 Clicking SAVE Calculate Cost must validate the Step 2 fields before showing a quote. 
 The user must enter a Vehicle Year between 1980 and the current year, choose a Vehicle Make, and choose a real Vehicle Model. 
-If any of those values are missing or invalid, keep the user on Step 2 and show this exact message: Please select a valid year, make, and model.
+If any of those values are missing or invalid, keep the user on Step 2 and show this message: Please select a valid year, make, and model. A trailing period is acceptable but not required.
 
 Your in-page JavaScript data must include per-make quote settings with a base fee and mileage rate. 
 Toyota must use baseFee 425 and mileageRate 0.78. Use that same data source for both the make/model dropdown behavior and quote calculation.
