@@ -34,6 +34,7 @@ Under the fields, add a button with this exact text: SAVE Calculate Cost.
 
 Clicking SAVE Calculate Cost must validate the Step 2 fields before showing a quote. 
 The user must enter a Vehicle Year between 1980 and the current year, choose a Vehicle Make, and choose a real Vehicle Model. 
+Do not trust the raw selected model value by itself. Validation must confirm that the chosen model still belongs to the currently selected make in your in-page JavaScript data, so injected or tampered model options are rejected.
 If any of those values are missing or invalid, keep the user on Step 2 and show this message: Please select a valid year, make, and model. A trailing period is acceptable but not required.
 
 Your in-page JavaScript data must include per-make quote settings with a base fee and mileage rate. 
@@ -59,3 +60,4 @@ Route matching should still work even when the user types city names with extra 
 
 If the user selects a make and model, and then changes the make, the model dropdown should go back to the default option, "Select model". 
 If the quote summary is already showing, hide it until the user selects a valid model again.
+Once Step 2 has been reached, both step tabs should stay usable so the user can go back to Destination and then return to Vehicle without re-unlocking the second step.
