@@ -5,7 +5,7 @@ version = "2.0"
 [metadata]
 author_name = "anonymous"
 author_email = "anonymous"
-difficulty = "medium"
+difficulty = "hard"
 category = "software-engineering"
 # Options for subcategories are: "long_context", "tool_specific", "api_integration", "db_interaction", "ui_building"
 subcategories = [ "ui_building" ]
@@ -15,10 +15,10 @@ codebase_size = "minimal"
 # Coding languages used in the oracle solution or required by the agent
 languages = [ "bash", "html", "css", "javascript" ]
 # For tool_specific, api_integration, and db_interaction subcategories, please include specific tool, api framework, or database software
-tags = [ "playwright", "vitest", "static-html", "multi-step-form", "dependent-dropdown", "form-validation" ]
+tags = [ "playwright", "vitest", "static-html", "multi-step-form", "dependent-dropdown", "form-validation", "quote-calculation" ]
 # Estimated time to complete (minutes)
-expert_time_estimate_min = 45
-junior_time_estimate_min = 90
+expert_time_estimate_min = 70
+junior_time_estimate_min = 140
 
 # Verifier: runs the test script to check task completion
 [verifier]

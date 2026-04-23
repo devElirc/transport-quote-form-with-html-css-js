@@ -69,4 +69,47 @@ describe("transport quote form markup contract", () => {
     expect(html).toContain("populateModels");
     expect(html).toContain("for (let year = currentYear; year >= 1980; year -= 1)");
   });
+
+  /**
+   * Contract: quote calculation must be implemented from deterministic in-page rate and route data,
+   * not improvised in the click handler or fetched at runtime.
+   */
+  it("includes deterministic quote-calculation data and result hooks", () => {
+    const html = readHtml();
+
+    expect(html).toContain("calculateQuote");
+    expect(html).toContain("baseFee");
+    expect(html).toContain("mileageRate");
+    expect(html).toContain("routeDistances");
+    expect(html).toContain("1547");
+    expect(html).toContain("Estimated transport quote");
+    expect(html).toContain("Please select a valid year, make, and model.");
+    expect(html).toMatch(new RegExp(`aria-live=${quote}polite${quote}`));
+  });
+
+  /**
+   * Contract: route lookup must normalize case + whitespace, and must not depend on exact
+   * user input formatting.
+   */
+  it("includes route normalization logic for case/whitespace tolerance", () => {
+    const html = readHtml();
+
+    expect(html).toContain("normalizeLocation");
+    expect(html).toMatch(/toLowerCase\(\)/);
+    expect(html).toMatch(/replace\(\s*\/\\s\+\/g/);
+  });
+
+  /**
+   * Contract: the task is intentionally a single static HTML file with no framework assets,
+   * build-tool entrypoints, or runtime network calls for vehicle/year data.
+   */
+  it("stays self-contained without external assets or API calls", () => {
+    const html = readHtml();
+
+    expect(html).not.toMatch(/<script\b[^>]*\bsrc=/i);
+    expect(html).not.toMatch(new RegExp(`<link\\b[^>]*rel=${quote}stylesheet${quote}`, "i"));
+    expect(html).not.toMatch(/\bfetch\s*\(/);
+    expect(html).not.toMatch(/\bXMLHttpRequest\b/);
+    expect(html).not.toMatch(/\bimport\s+.*\bfrom\b/);
+  });
 });
