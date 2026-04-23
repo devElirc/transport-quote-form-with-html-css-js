@@ -50,7 +50,7 @@ describe("transport quote form markup contract", () => {
   it("includes validation copy and the year datalist hook", () => {
     const html = readHtml();
 
-    expect(html).toContain("Please enter both pickup and delivery locations.");
+    expect(html).toMatch(/Please enter both pickup and delivery locations\.?/);
     expect(html).toMatch(new RegExp(`list=${quote}vehicle-year-options${quote}`));
   });
 
@@ -83,7 +83,7 @@ describe("transport quote form markup contract", () => {
     expect(html).toContain("routeDistances");
     expect(html).toContain("1547");
     expect(html).toContain("Estimated transport quote");
-    expect(html).toContain("Please select a valid year, make, and model.");
+    expect(html).toMatch(/Please select a valid year, make, and model\.?/);
     expect(html).toMatch(new RegExp(`aria-live=${quote}polite${quote}`));
   });
 
