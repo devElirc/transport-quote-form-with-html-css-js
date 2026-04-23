@@ -415,6 +415,14 @@ cat > /app/index.html <<'EOF'
         return value.trim().toLowerCase().replace(/\s+/g, " ");
       }
 
+      function formatLocation(value) {
+        return normalizeLocation(value)
+          .split(" ")
+          .filter(Boolean)
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(" ");
+      }
+
       function getDistanceMiles(pickupValue, deliveryValue) {
         const key = `${normalizeLocation(pickupValue)}|${normalizeLocation(deliveryValue)}`;
         return routeDistances[key] || 900;
@@ -490,7 +498,7 @@ cat > /app/index.html <<'EOF'
         };
         const amount = calculateQuote(details);
 
-        quoteRoute.textContent = `${details.pickup} to ${details.delivery}`;
+        quoteRoute.textContent = `${formatLocation(details.pickup)} to ${formatLocation(details.delivery)}`;
         quoteVehicle.textContent = `${details.year} ${details.make} ${details.model}`;
         quoteAmount.textContent = formatCurrency(amount);
         quoteSummary.hidden = false;

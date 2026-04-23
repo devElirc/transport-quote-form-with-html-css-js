@@ -48,7 +48,8 @@ where vehicleAge is the current year minus the selected vehicle year, but never 
 
 After a valid SAVE Calculate Cost click, 
 show a quote summary panel with aria-live="polite". 
-The panel must include the heading text Estimated transport quote, the route in the format Pickup to Delivery, the selected vehicle in the format Year Make Model, and the calculated amount formatted as US dollars.
+The panel must include the heading text Estimated transport quote, the route in the format Pickup to Delivery, the selected vehicle in the format Year Make Model, and the calculated amount formatted as US dollars. 
+Normalize extra spaces and case in the displayed route, so "  Los   Angeles " to "HOUSTON" displays as Los Angeles to Houston.
 
 The /app/index.html source must also include the literal substrings calculateQuote, baseFee, mileageRate, routeDistances, Estimated transport quote, and Please select a valid year, make, and model.
 
