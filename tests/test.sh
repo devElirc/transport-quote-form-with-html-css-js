@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 
 SCRIPT_PATH="${BASH_SOURCE[0]:-$0}"
 TEST_DIR="${TEST_DIR:-$(cd "$(dirname "$SCRIPT_PATH")" && pwd)}"
@@ -15,14 +15,15 @@ if [ ! -f /app/index.html ]; then
 fi
 
 cd "$TEST_DIR"
-if ! npm install --no-fund --no-audit; then
+npm install --no-fund --no-audit
+if [ $? -ne 0 ]; then
   echo 0 > /logs/verifier/reward.txt
   exit 1
 fi
 
-if npm run test; then
+npm run test
+if [ $? -eq 0 ]; then
   echo 1 > /logs/verifier/reward.txt
 else
   echo 0 > /logs/verifier/reward.txt
-  exit 1
 fi
