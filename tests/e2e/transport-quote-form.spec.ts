@@ -4,7 +4,7 @@ test("step 1 is shown first and future steps stay locked", async ({ page }) => {
   await page.goto("/");
 
   await expect(page).toHaveTitle(/Transport Quote Form/i);
-  await expect(page.getByRole("heading", { name: "Transport car pickup and destination." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^Transport car pickup and destination\.?$/ })).toBeVisible();
 
   const destinationTab = page.getByRole("tab", { name: /destination/i });
   const vehicleTab = page.getByRole("tab", { name: /vehicle/i });

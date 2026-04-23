@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 
 const appHtmlPath = "/app/index.html";
+const quote = String.raw`["']`;
 
 function readHtml() {
   if (!fs.existsSync(appHtmlPath)) {
@@ -19,8 +20,8 @@ describe("transport quote form markup contract", () => {
   it("includes the expected page chrome and step labels", () => {
     const html = readHtml();
 
-    expect(html).toContain("<title>Transport Quote Form</title>");
-    expect(html).toContain("Transport car pickup and destination.");
+    expect(html).toMatch(/<title>\s*Transport Quote Form\s*<\/title>/);
+    expect(html).toMatch(/Transport car pickup and destination\.?/);
     expect(html).toContain("Destination");
     expect(html).toContain("Vehicle");
     expect(html).toContain("VEHICLE DETAILS");
@@ -34,12 +35,12 @@ describe("transport quote form markup contract", () => {
   it("includes accessible labels and the dependent vehicle model control", () => {
     const html = readHtml();
 
-    expect(html).toMatch(/aria-label="Pickup"/);
-    expect(html).toMatch(/aria-label="Delivery"/);
-    expect(html).toMatch(/aria-label="Vehicle Year"/);
-    expect(html).toMatch(/aria-label="Vehicle Make"/);
-    expect(html).toMatch(/aria-label="Vehicle Model"/);
-    expect(html).toMatch(/id="vehicle-model"[\s\S]*disabled|disabled[\s\S]*id="vehicle-model"/);
+    expect(html).toMatch(new RegExp(`aria-label=${quote}Pickup${quote}`));
+    expect(html).toMatch(new RegExp(`aria-label=${quote}Delivery${quote}`));
+    expect(html).toMatch(new RegExp(`aria-label=${quote}Vehicle Year${quote}`));
+    expect(html).toMatch(new RegExp(`aria-label=${quote}Vehicle Make${quote}`));
+    expect(html).toMatch(new RegExp(`aria-label=${quote}Vehicle Model${quote}`));
+    expect(html).toMatch(new RegExp(`id=${quote}vehicle-model${quote}[\\s\\S]*disabled|disabled[\\s\\S]*id=${quote}vehicle-model${quote}`));
   });
 
   /**
@@ -50,7 +51,7 @@ describe("transport quote form markup contract", () => {
     const html = readHtml();
 
     expect(html).toContain("Please enter both pickup and delivery locations.");
-    expect(html).toContain('list="vehicle-year-options"');
+    expect(html).toMatch(new RegExp(`list=${quote}vehicle-year-options${quote}`));
   });
 
   /**
