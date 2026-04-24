@@ -70,6 +70,91 @@ if [ "$TEST_EXIT" -eq 0 ]; then
 fi
 
 # --------------------------------------------------------------------------------------
+# Behavior smoke checks (so key requirements aren't "hidden" in JS specs)
+# --------------------------------------------------------------------------------------
+if [ "$TEST_EXIT" -eq 0 ]; then
+  node --input-type=module <<'EOF'
+import { spawn } from "node:child_process";
+import process from "node:process";
+import { chromium } from "@playwright/test";
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForServer(url, timeoutMs) {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    try {
+      const res = await fetch(url, { method: "GET" });
+      if (res.ok) return;
+    } catch {
+      // ignore
+    }
+    await sleep(200);
+  }
+  throw new Error(`Timed out waiting for server at ${url}`);
+}
+
+const server = spawn("npx", ["serve", "/app", "-p", "3000"], {
+  stdio: "ignore",
+  env: process.env,
+});
+
+let exitCode = 0;
+try {
+  await waitForServer("http://localhost:3000", 15000);
+
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto("http://localhost:3000", { waitUntil: "domcontentloaded" });
+
+  // Step gating / ARIA: Vehicle starts disabled; clicking with valid inputs unlocks it and selects it.
+  const vehicleTab = page.getByRole("tab", { name: /vehicle/i });
+  if (await vehicleTab.isEnabled()) throw new Error("Expected Vehicle tab to start disabled.");
+
+  await page.getByRole("textbox", { name: "Pickup" }).fill("Los Angeles");
+  await page.getByRole("textbox", { name: "Delivery" }).fill("Houston");
+  await page.getByRole("button", { name: "VEHICLE DETAILS" }).click();
+  await page.waitForTimeout(250);
+  if (!(await vehicleTab.isEnabled())) throw new Error("Expected Vehicle tab to be enabled after Step 1 completion.");
+  const selected = await vehicleTab.getAttribute("aria-selected");
+  if (selected !== "true") throw new Error("Expected Vehicle tab aria-selected=true after navigation.");
+
+  // Validation copy: clicking calculate with missing fields should show the error text (not just exist hidden).
+  await page.getByRole("button", { name: "SAVE Calculate Cost" }).click();
+  const validation = page.getByText(/Please select a valid year, make, and model\.?/);
+  if (!(await validation.isVisible())) throw new Error("Expected vehicle validation message to be visible.");
+
+  // Quote calculation: a filled-out happy path renders the quote heading.
+  const currentYear = new Date().getFullYear();
+  await page.getByRole("combobox", { name: "Vehicle Year" }).fill(String(currentYear - 2));
+  await page.getByRole("combobox", { name: "Vehicle Make" }).selectOption("Toyota");
+  await page.getByRole("combobox", { name: "Vehicle Model" }).selectOption("Camry");
+  await page.getByRole("button", { name: "SAVE Calculate Cost" }).click();
+  const heading = page.getByRole("heading", { name: "Estimated transport quote" });
+  if (!(await heading.isVisible())) throw new Error("Expected quote heading to be visible after valid calculation.");
+
+  await browser.close();
+} catch (err) {
+  console.error(String(err?.stack ?? err));
+  exitCode = 1;
+} finally {
+  try {
+    server.kill("SIGTERM");
+  } catch {
+    // ignore
+  }
+}
+
+process.exit(exitCode);
+EOF
+  if [ $? -ne 0 ]; then
+    TEST_EXIT=1
+  fi
+fi
+
+# --------------------------------------------------------------------------------------
 # Run the behavioral test suite (Vitest contract + Playwright E2E)
 # --------------------------------------------------------------------------------------
 set +e

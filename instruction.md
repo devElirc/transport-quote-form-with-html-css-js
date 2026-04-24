@@ -1,11 +1,11 @@
 Build a simple transport quote form as one static page using HTML, CSS, and plain JavaScript only.
 
 Implement everything in /app/index.html. Do not add a bundler, framework app scaffold, or extra build tooling beyond what you put in that single HTML file.
-The page  include this exact document title: <title>Transport Quote Form</title>.
+The page must include this exact document title: <title>Transport Quote Form</title>.
 
 Make it a small card with two steps: Destination and Vehicle.
 At the top, add a step bar that behaves like tabs. Use role="tablist" on the wrapper, role="tab" on each step, and mark the active step with aria-selected.
-The two tab labels  include the text Destination and Vehicle (those words are what the UI should show for the steps).
+The two tab labels must include the text Destination and Vehicle (those words are what the UI should show for the steps).
 The current step should look active.
 Any step the user has not reached yet should stay disabled.
 Show the active step content inside the same card.
@@ -19,42 +19,42 @@ If not, stay on Step 1 and show this message: Please enter both pickup and deliv
 Step 2 should show a heading that includes Vehicle details.
 Add a Vehicle Year field with aria-label="Vehicle Year" and list="vehicle-year-options".
 Add <datalist id="vehicle-year-options"> and generate years from the current year down to 1980.
-The file  contain this exact loop text: for (let year = currentYear; year >= 1980; year -= 1)
+The file must contain this exact loop text: for (let year = currentYear; year >= 1980; year -= 1)
 Add a Vehicle Make field using a <select> with aria-label="Vehicle Make".
 Add a Vehicle Model field using a <select id="vehicle-model"> with aria-label="Vehicle Model".
 Keep the model field disabled at first, then enable it and load the matching options after a make is selected.
-Create a JavaScript function named populateModels(makeSelect, modelSelect). The file  contain that exact function name as a substring.
+Create a JavaScript function named populateModels(makeSelect, modelSelect). The file must contain that exact function name as a substring.
 Use realistic make and model lists as plain in-page JavaScript data, like a simple object or map.
-At minimum, Toyota  include Camry, Corolla, RAV4, and Tacoma.
+At minimum, Toyota must include Camry, Corolla, RAV4, and Tacoma.
 
-The /app/index.html source  also include the literal substrings Toyota, Camry, Corolla, RAV4, Tacoma, populateModels, and the exact year-generation loop text for (let year = currentYear; year >= 1980; year -= 1).
+The /app/index.html source must also include the literal substrings Toyota, Camry, Corolla, RAV4, Tacoma, populateModels, and the exact year-generation loop text for (let year = currentYear; year >= 1980; year -= 1).
 
 In the model <select>, make the first option Select model, and keep it selected until the user picks a real model.
 Under the fields, add a button with this exact text: SAVE Calculate Cost.
 
-Clicking SAVE Calculate Cost  validate the Step 2 fields before showing a quote. 
-The user  enter a Vehicle Year between 1980 and the current year, choose a Vehicle Make, and choose a real Vehicle Model. 
+Clicking SAVE Calculate Cost must validate the Step 2 fields before showing a quote.
+The user must enter a Vehicle Year between 1980 and the current year, choose a Vehicle Make, and choose a real Vehicle Model.
 Do not trust the raw selected model value by itself. 
 Before accepting the model, check it against your JavaScript make/model list. 
 Make sure the selected model really belongs to the selected make, so fake or manually changed model values cannot pass validation.
 If any of those values are missing or invalid, keep the user on Step 2 and show this message: Please select a valid year, make, and model. A trailing period is acceptable but not required.
 
-Your in-page JavaScript data  include per-make quote settings with a base fee and mileage rate. 
-Toyota  use baseFee 425 and mileageRate 0.78. Use that same data source for both the make/model dropdown behavior and quote calculation.
+Your in-page JavaScript data must include per-make quote settings with a base fee and mileage rate.
+Toyota must use baseFee 425 and mileageRate 0.78. Use that same data source for both the make/model dropdown behavior and quote calculation.
 
-Add route-distance data in plain in-page JavaScript. At minimum, the normalized route Los Angeles to Houston  resolve to 1547 miles, and the reverse direction  work too. Unknown routes may use a fallback distance.
+Add route-distance data in plain in-page JavaScript. At minimum, the normalized route Los Angeles to Houston must resolve to 1547 miles, and the reverse direction must work too. Unknown routes may use a fallback distance.
 
 Create a JavaScript function named calculateQuote(details). 
-The file  contain that exact function name as a substring. 
+The file must contain that exact function name as a substring.
 The function should calculate: Math.round(baseFee + distanceMiles * mileageRate + vehicleAge * 12)
 where vehicleAge is the current year minus the selected vehicle year, but never less than 0.
 
 After a valid SAVE Calculate Cost click, 
 show a quote summary panel with aria-live="polite". 
-The panel  include the heading text Estimated transport quote, the route in the format Pickup to Delivery, the selected vehicle in the format Year Make Model, and the calculated amount formatted as US dollars. 
+The panel must include the heading text Estimated transport quote, the route in the format Pickup to Delivery, the selected vehicle in the format Year Make Model, and the calculated amount formatted as US dollars.
 Normalize extra spaces and case in the displayed route, so "  Los   Angeles " to "HOUSTON" displays as Los Angeles to Houston.
 
-The /app/index.html source  also include the literal substrings calculateQuote, baseFee, mileageRate, routeDistances, Estimated transport quote, and Please select a valid year, make, and model.
+The /app/index.html source must also include the literal substrings calculateQuote, baseFee, mileageRate, routeDistances, Estimated transport quote, and Please select a valid year, make, and model.
 
 Keep everything frontend-only, with no external API calls.
 
