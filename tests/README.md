@@ -7,7 +7,7 @@ This task is verified with both unit and E2E tests.
 - `tests/e2e/transport-quote-form.spec.ts`
   Drives the UI in Chromium: step gating, Step 1 and Step 2 validation messages, same-city guard, dependent make/model behavior, tamper rejection, year range checks, and the `Success!` confirmation.
 - `tests/test_outputs.py`
-  Small **pytest** module for harness smoke checks (required by some automated reviewers that look for `test_*.py`). `tests/test.sh` pins **`pytest==8.3.4`** and installs it into **`tests/.pytest-venv`** when possible so PEP 668–managed system Python does not block `pip install`; it falls back to system/user/`--break-system-packages` installs only if `python3 -m venv` is unavailable.
+  Small **Python** module for harness smoke checks (required by some automated reviewers that look for `test_*.py`). It uses **stdlib `unittest` only**—no `pip`, `pytest`, or `venv`—so minimal verifier images still run it via `python3 -m unittest test_outputs -v` from `tests/test.sh`.
 
 ## How It Runs
 

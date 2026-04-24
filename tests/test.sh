@@ -15,7 +15,7 @@ TEST_EXIT=0
 # --------------------------------------------------------------------------------------
 # - Static HTML contract: tests/unit/transport-quote-form.spec.ts
 # - Browser behavior: tests/e2e/transport-quote-form.spec.ts
-# - Pytest harness smoke: tests/test_outputs.py
+# - Python harness smoke (stdlib unittest): tests/test_outputs.py
 # - Inline smoke below: fast Playwright sanity checks visible in this file for harness reviewers.
 
 # --------------------------------------------------------------------------------------
@@ -32,7 +32,7 @@ if [ ! -f /app/index.html ]; then
 else
   cd "$TEST_DIR"
   if ! command -v python3 >/dev/null 2>&1; then
-    echo "Error: python3 is required to run tests/test_outputs.py (pytest)." >&2
+    echo "Error: python3 is required to run tests/test_outputs.py (stdlib unittest)." >&2
     TEST_EXIT=1
   fi
   if [ ! -f package.json ] || [ ! -f package-lock.json ]; then
@@ -48,7 +48,7 @@ else
     TEST_EXIT=1
   fi
   if [ ! -f test_outputs.py ]; then
-    echo "Error: tests/test_outputs.py is missing (pytest harness smoke tests)." >&2
+    echo "Error: tests/test_outputs.py is missing (Python harness smoke tests)." >&2
     TEST_EXIT=1
   fi
 
@@ -210,53 +210,16 @@ EOF
 fi
 
 # --------------------------------------------------------------------------------------
-# Run the behavioral test suite (Vitest + Playwright + Pytest harness smoke)
+# Run the behavioral test suite (Vitest + Playwright + Python harness smoke)
 # --------------------------------------------------------------------------------------
 set +e
 SUITE_OK=0
 if [ "$TEST_EXIT" -eq 0 ]; then
   npm run test
   NPM_STATUS=$?
-  # Pytest is a Python package (not npm). Pin it for reproducible harness audits.
-  # Prefer a project-local venv: many distros ship PEP 668 "externally managed" Python
-  # where global/user pip installs are refused (both attempts would fail silently).
-  PY_STATUS=0
-  VENV_DIR="${TEST_DIR}/.pytest-venv"
-  USE_VENV=0
-  if [ -x "${VENV_DIR}/bin/python" ]; then
-    USE_VENV=1
-  elif python3 -m venv "${VENV_DIR}" >/dev/null 2>&1; then
-    USE_VENV=1
-  fi
-  if [ "$USE_VENV" -eq 1 ]; then
-    if ! "${VENV_DIR}/bin/pip" install --disable-pip-version-check --no-input \
-      pytest==8.3.4 >/dev/null 2>&1; then
-      echo "Error: could not install pinned pytest==8.3.4 into ${VENV_DIR}." >&2
-      PY_STATUS=1
-    fi
-  else
-    if python3 -m pip install --disable-pip-version-check --no-input \
-      --root-user-action=ignore pytest==8.3.4 >/dev/null 2>&1; then
-      :
-    elif python3 -m pip install --disable-pip-version-check --no-input \
-      --user pytest==8.3.4 >/dev/null 2>&1; then
-      :
-    elif python3 -m pip install --disable-pip-version-check --no-input \
-      --break-system-packages pytest==8.3.4 >/dev/null 2>&1; then
-      :
-    else
-      echo "Error: could not install pinned pytest==8.3.4 for test_outputs.py (venv creation also failed)." >&2
-      PY_STATUS=1
-    fi
-  fi
-  if [ "${PY_STATUS:-0}" -eq 0 ]; then
-    if [ "$USE_VENV" -eq 1 ]; then
-      "${VENV_DIR}/bin/python" -m pytest test_outputs.py -rA
-    else
-      python3 -m pytest test_outputs.py -rA
-    fi
-    PY_STATUS=$?
-  fi
+  # test_outputs.py uses stdlib unittest only (no pip/pytest/venv on minimal images).
+  python3 -m unittest test_outputs -v
+  PY_STATUS=$?
   if [ "$NPM_STATUS" -eq 0 ] && [ "$PY_STATUS" -eq 0 ]; then
     SUITE_OK=1
   fi
