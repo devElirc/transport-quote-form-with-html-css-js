@@ -8,6 +8,7 @@ export PLAYWRIGHT_BROWSERS_PATH="${PLAYWRIGHT_BROWSERS_PATH:-/ms-playwright}"
 
 mkdir -p /logs/verifier
 
+run_verifier() {
 TEST_EXIT=0
 
 # --------------------------------------------------------------------------------------
@@ -213,7 +214,6 @@ fi
 # Run the behavioral test suite (Vitest + Playwright + Python harness smoke)
 # --------------------------------------------------------------------------------------
 set +e
-SUITE_OK=0
 if [ "$TEST_EXIT" -eq 0 ]; then
   npm run test
   NPM_STATUS=$?
@@ -221,12 +221,16 @@ if [ "$TEST_EXIT" -eq 0 ]; then
   python3 -m unittest test_outputs -v
   PY_STATUS=$?
   if [ "$NPM_STATUS" -eq 0 ] && [ "$PY_STATUS" -eq 0 ]; then
-    SUITE_OK=1
+    return 0
   fi
-else
-  false
+  return 1
 fi
-if [ "$SUITE_OK" -eq 1 ]; then
+return 1
+}
+
+set +e
+run_verifier
+if [ $? -eq 0 ]; then
   echo 1 > /logs/verifier/reward.txt
 else
   echo 0 > /logs/verifier/reward.txt
