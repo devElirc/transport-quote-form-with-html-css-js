@@ -218,18 +218,43 @@ if [ "$TEST_EXIT" -eq 0 ]; then
   npm run test
   NPM_STATUS=$?
   # Pytest is a Python package (not npm). Pin it for reproducible harness audits.
-  if python3 -m pip install --disable-pip-version-check --no-input \
-    --root-user-action=ignore pytest==8.3.4 >/dev/null 2>&1; then
-    :
-  elif python3 -m pip install --disable-pip-version-check --no-input \
-    --user pytest==8.3.4 >/dev/null 2>&1; then
-    :
+  # Prefer a project-local venv: many distros ship PEP 668 "externally managed" Python
+  # where global/user pip installs are refused (both attempts would fail silently).
+  PY_STATUS=0
+  VENV_DIR="${TEST_DIR}/.pytest-venv"
+  USE_VENV=0
+  if [ -x "${VENV_DIR}/bin/python" ]; then
+    USE_VENV=1
+  elif python3 -m venv "${VENV_DIR}" >/dev/null 2>&1; then
+    USE_VENV=1
+  fi
+  if [ "$USE_VENV" -eq 1 ]; then
+    if ! "${VENV_DIR}/bin/pip" install --disable-pip-version-check --no-input \
+      pytest==8.3.4 >/dev/null 2>&1; then
+      echo "Error: could not install pinned pytest==8.3.4 into ${VENV_DIR}." >&2
+      PY_STATUS=1
+    fi
   else
-    echo "Error: could not install pinned pytest==8.3.4 for test_outputs.py." >&2
-    PY_STATUS=1
+    if python3 -m pip install --disable-pip-version-check --no-input \
+      --root-user-action=ignore pytest==8.3.4 >/dev/null 2>&1; then
+      :
+    elif python3 -m pip install --disable-pip-version-check --no-input \
+      --user pytest==8.3.4 >/dev/null 2>&1; then
+      :
+    elif python3 -m pip install --disable-pip-version-check --no-input \
+      --break-system-packages pytest==8.3.4 >/dev/null 2>&1; then
+      :
+    else
+      echo "Error: could not install pinned pytest==8.3.4 for test_outputs.py (venv creation also failed)." >&2
+      PY_STATUS=1
+    fi
   fi
   if [ "${PY_STATUS:-0}" -eq 0 ]; then
-    python3 -m pytest test_outputs.py -rA
+    if [ "$USE_VENV" -eq 1 ]; then
+      "${VENV_DIR}/bin/python" -m pytest test_outputs.py -rA
+    else
+      python3 -m pytest test_outputs.py -rA
+    fi
     PY_STATUS=$?
   fi
   if [ "$NPM_STATUS" -eq 0 ] && [ "$PY_STATUS" -eq 0 ]; then
