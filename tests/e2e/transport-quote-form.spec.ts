@@ -4,6 +4,7 @@ test("step 1 is shown first and future steps stay locked", async ({ page }) => {
   await page.goto("/");
 
   await expect(page).toHaveTitle(/Transport Quote Form/i);
+  await expect(page.getByRole("tablist")).toBeVisible();
   await expect(page.getByRole("heading", { name: /^Transport car pickup and destination\.?$/ })).toBeVisible();
 
   const destinationTab = page.getByRole("tab", { name: /destination/i });
@@ -27,6 +28,7 @@ test("users can progress to vehicle details and load dependent models", async ({
   const modelSelect = page.getByRole("combobox", { name: "Vehicle Model" });
 
   await expect(vehicleTab).toHaveAttribute("aria-selected", "true");
+  await expect(vehicleTab).toBeEnabled();
   await expect(page.getByRole("heading", { name: /vehicle details/i })).toBeVisible();
   await expect(modelSelect).toBeDisabled();
 

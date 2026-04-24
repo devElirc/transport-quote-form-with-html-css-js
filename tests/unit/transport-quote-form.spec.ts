@@ -22,6 +22,8 @@ describe("transport quote form markup contract", () => {
 
     expect(html).toMatch(/<title>\s*Transport Quote Form\s*<\/title>/);
     expect(html).toMatch(/Transport car pickup and destination\.?/);
+    expect(html).toMatch(new RegExp(`role=${quote}tablist${quote}`));
+    expect(html).toMatch(new RegExp(`role=${quote}tab${quote}`));
     expect(html).toContain("Destination");
     expect(html).toContain("Vehicle");
     expect(html).toContain("VEHICLE DETAILS");
@@ -40,6 +42,7 @@ describe("transport quote form markup contract", () => {
     expect(html).toMatch(new RegExp(`aria-label=${quote}Vehicle Year${quote}`));
     expect(html).toMatch(new RegExp(`aria-label=${quote}Vehicle Make${quote}`));
     expect(html).toMatch(new RegExp(`aria-label=${quote}Vehicle Model${quote}`));
+    expect(html).toMatch(/<option[^>]*value=["']["'][^>]*>\s*Select model\s*<\/option>/i);
     expect(html).toMatch(new RegExp(`id=${quote}vehicle-model${quote}[\\s\\S]*disabled|disabled[\\s\\S]*id=${quote}vehicle-model${quote}`));
   });
 

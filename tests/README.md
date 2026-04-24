@@ -1,37 +1,29 @@
-## Test suite
+## Test Suite
 
-This task is verified with **both unit and E2E tests**:
+This task is verified with both unit and E2E tests.
 
-- **Unit (Vitest)**: `tests/unit/transport-quote-form.spec.ts`
-  - Enforces required literal substrings and markup contracts (title, ARIA labels, exact error strings, `populateModels`, the year loop text, quote-calculation tokens).
-- **E2E (Playwright)**: `tests/e2e/transport-quote-form.spec.ts`
-  - Drives the UI end-to-end (step locking, validation, dependent make/model dropdown, year datalist range, quote panel output).
+- `tests/unit/transport-quote-form.spec.ts`
+  Checks the static `/app/index.html` contract, including required literals, title, ARIA labels, tab roles, the year loop text, and quote-calculation hooks.
+- `tests/e2e/transport-quote-form.spec.ts`
+  Drives the UI in Chromium, covering step locking, step unlock/navigation, dependent make/model behavior, validation, quote rendering, route normalization, tamper rejection, and year edge cases.
 
-`tests/test.sh` installs dependencies in the `tests/` harness directory and runs:
+## How It Runs
+
+`tests/test.sh` installs dependencies in the `tests/` directory and runs:
 
 ```bash
 npm run test
 ```
 
-which executes `test:unit` then `test:e2e` (see `tests/package.json`).
-# UI task test suite
-
-This task uses **Vitest** for fast markup/DOM contract checks and **Playwright** for browser-level interaction checks. Dependencies are installed at verifier time via `tests/test.sh`.
-
-**This task:** The agent implements the static page at `/app/index.html`. Playwright serves `/app` via `npx serve`, and Vitest reads `/app/index.html` for markup contract checks.
-
-## Layout
-
-- **`unit/`** — Vitest specs (`*.spec.ts`) that validate important substrings/markup in `/app/index.html`.
-- **`e2e/`** — Playwright specs. The dev server is started via `webServer` in `playwright.config.ts` (static hosting of `/app`).
-
-## Commands
+That executes:
 
 ```bash
-npm run test       # Unit tests (Vitest)
-npm run test:e2e    # E2E tests (Playwright; starts webServer automatically)
+npm run test:unit
+npm run test:e2e
 ```
 
-## E2E and your app
+## Notes
 
-In `playwright.config.ts`, `webServer` is configured to statically serve `/app` on port 3000.
+- The agent implementation lives at `/app/index.html`.
+- Vitest reads `/app/index.html` directly.
+- Playwright serves `/app` through the `webServer` configured in `tests/playwright.config.ts`.
