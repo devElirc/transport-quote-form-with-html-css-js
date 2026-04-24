@@ -96,18 +96,22 @@ async function waitForServer(url, timeoutMs) {
   throw new Error(`Timed out waiting for server at ${url}`);
 }
 
-const server = spawn("npx", ["serve", "/app", "-p", "3000"], {
+// Use a different port than the Playwright E2E suite (3000) to avoid conflicts.
+const smokePort = 3100;
+const smokeUrl = `http://localhost:${smokePort}`;
+
+const server = spawn("npx", ["serve", "/app", "-p", String(smokePort)], {
   stdio: "ignore",
   env: process.env,
 });
 
 let exitCode = 0;
 try {
-  await waitForServer("http://localhost:3000", 15000);
+  await waitForServer(smokeUrl, 15000);
 
   const browser = await chromium.launch();
   const page = await browser.newPage();
-  await page.goto("http://localhost:3000", { waitUntil: "domcontentloaded" });
+  await page.goto(smokeUrl, { waitUntil: "domcontentloaded" });
 
   // Step gating / ARIA: Vehicle starts disabled; clicking with valid inputs unlocks it and selects it.
   const vehicleTab = page.getByRole("tab", { name: /vehicle/i });
@@ -144,6 +148,18 @@ try {
     server.kill("SIGTERM");
   } catch {
     // ignore
+  }
+  // Ensure the port is released before the E2E suite starts.
+  await Promise.race([
+    new Promise((resolve) => server.once("exit", resolve)),
+    sleep(1500),
+  ]);
+  if (!server.killed) {
+    try {
+      server.kill("SIGKILL");
+    } catch {
+      // ignore
+    }
   }
 }
 
