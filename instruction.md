@@ -1,6 +1,6 @@
 Build a simple transport quote form as one static page using HTML, CSS, and plain JavaScript only.
 
-Implement everything in /app/index.html. Do not add a bundler, framework app scaffold, or extra build tooling beyond what you put in that single HTML file.
+Implement everything in /app/index.html.
 The page must include this exact document title: <title>Transport Quote Form</title>.
 
 Make it a small card with two steps: Destination and Vehicle.
@@ -15,6 +15,7 @@ On the actual inputs, use aria-label="Pickup" and aria-label="Delivery".
 Below the inputs, add a full-width green button labeled VEHICLE DETAILS.
 When the user clicks the button, move to Step 2 only if both inputs have text after trimming spaces. 
 If not, stay on Step 1 and show this message: Please enter both pickup and delivery locations. A trailing period is acceptable but not required.
+If both fields are non-blank but normalize to the same city (ignore case and collapse internal whitespace to single spaces), stay on Step 1, keep the Vehicle tab disabled, and show this message: Pickup and delivery must be different locations.
 
 Step 2 should show a heading that includes Vehicle details.
 Add a Vehicle Year field with aria-label="Vehicle Year" and list="vehicle-year-options".
@@ -32,34 +33,14 @@ The /app/index.html source must also include the literal substrings Toyota, Camr
 In the model <select>, make the first option Select model, and keep it selected until the user picks a real model.
 Under the fields, add a button with this exact text: SAVE Calculate Cost.
 
-Clicking SAVE Calculate Cost must validate the Step 2 fields before showing a quote.
+Clicking SAVE Calculate Cost must validate the Step 2 fields before showing any confirmation.
 The user must enter a Vehicle Year between 1980 and the current year, choose a Vehicle Make, and choose a real Vehicle Model.
 Do not trust the raw selected model value by itself. 
 Before accepting the model, check it against your JavaScript make/model list. 
 Make sure the selected model really belongs to the selected make, so fake or manually changed model values cannot pass validation.
-If any of those values are missing or invalid, keep the user on Step 2 and show this message: Please select a valid year, make, and model. A trailing period is acceptable but not required.
+If any required vehicle detail is missing or invalid, stay on Step 2 and show this message: "Please select a valid year, make, and model."
 
-Your in-page JavaScript data must include per-make quote settings with a base fee and mileage rate.
-Toyota must use baseFee 425 and mileageRate 0.78. Use that same data source for both the make/model dropdown behavior and quote calculation.
+The period at the end is okay, but it is not required.
 
-Add route-distance data in plain in-page JavaScript. At minimum, the normalized route Los Angeles to Houston must resolve to 1547 miles, and the reverse direction must work too. Unknown routes may use a fallback distance.
+If all vehicle details are valid, show this confirmation message: "Success!"
 
-Create a JavaScript function named calculateQuote(details). 
-The file must contain that exact function name as a substring.
-The function should calculate: Math.round(baseFee + distanceMiles * mileageRate + vehicleAge * 12)
-where vehicleAge is the current year minus the selected vehicle year, but never less than 0.
-
-After a valid SAVE Calculate Cost click, 
-show a quote summary panel with aria-live="polite". 
-The panel must include the heading text Estimated transport quote, the route in the format Pickup to Delivery, the selected vehicle in the format Year Make Model, and the calculated amount formatted as US dollars.
-Normalize extra spaces and case in the displayed route, so "  Los   Angeles " to "HOUSTON" displays as Los Angeles to Houston.
-
-The /app/index.html source must also include the literal substrings calculateQuote, baseFee, mileageRate, routeDistances, Estimated transport quote, and Please select a valid year, make, and model.
-
-Keep everything frontend-only, with no external API calls.
-
-Route matching should still work even when the user types city names with extra spaces or different capital letters. For example, " Los Angeles " and "HOUSTON" should match the same route as "Los Angeles" and "Houston".
-
-If the user selects a make and model, and then changes the make, the model dropdown should go back to the default option, "Select model". 
-If the quote summary is already showing, hide it until the user selects a valid model again.
-Once Step 2 has been reached, both step tabs should stay usable so the user can go back to Destination and then return to Vehicle without re-unlocking the second step.

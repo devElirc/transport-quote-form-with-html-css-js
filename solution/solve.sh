@@ -196,27 +196,20 @@ cat > /app/index.html <<'EOF'
         margin: 6px 0 0;
       }
 
-      .quote-summary {
+      .success-banner {
         margin-top: 16px;
         padding: 14px;
         border: 1px solid #bbf7d0;
         border-radius: 14px;
         background: #f0fdf4;
-      }
-
-      .quote-summary h3 {
-        margin: 0 0 8px;
-        font-size: 16px;
-      }
-
-      .quote-summary p {
-        margin: 4px 0;
-      }
-
-      .quote-amount {
-        font-size: 28px;
+        font-size: 18px;
         font-weight: 950;
         color: #166534;
+        display: none;
+      }
+
+      .success-banner.show {
+        display: block;
       }
     </style>
   </head>
@@ -313,12 +306,7 @@ cat > /app/index.html <<'EOF'
 
             <div id="vehicle-error" class="error">Please select a valid year, make, and model.</div>
 
-            <section id="quote-summary" class="quote-summary" role="region" aria-label="Estimated transport quote" aria-live="polite" hidden>
-              <h3>Estimated transport quote</h3>
-              <p id="quote-route"></p>
-              <p id="quote-vehicle"></p>
-              <p id="quote-amount" class="quote-amount"></p>
-            </section>
+            <div id="vehicle-success" class="success-banner">Success!</div>
           </div>
         </div>
       </section>
@@ -341,28 +329,16 @@ cat > /app/index.html <<'EOF'
       const modelSelect = document.getElementById("vehicle-model");
       const saveButton = document.getElementById("save");
       const vehicleError = document.getElementById("vehicle-error");
-      const quoteSummary = document.getElementById("quote-summary");
-      const quoteRoute = document.getElementById("quote-route");
-      const quoteVehicle = document.getElementById("quote-vehicle");
-      const quoteAmount = document.getElementById("quote-amount");
+      const vehicleSuccess = document.getElementById("vehicle-success");
 
-      const vehicleRates = {
-        Toyota: { baseFee: 425, mileageRate: 0.78, models: ["Camry", "Corolla", "RAV4", "Tacoma"] },
+      const vehicleData = {
+        Toyota: { models: ["Camry", "Corolla", "RAV4", "Tacoma"] },
         Honda: {
-          baseFee: 415,
-          mileageRate: 0.76,
           models: ["Civic", "Accord", "CR-V", "Pilot", "HR-V", "Passport", "Ridgeline", "Insight", "Odyssey"],
         },
         Ford: {
-          baseFee: 440,
-          mileageRate: 0.81,
           models: ["F-150", "Bronco", "Mustang", "Explorer", "Escape", "Edge", "Ranger", "Maverick", "Expedition"],
         },
-      };
-
-      const routeDistances = {
-        "los angeles|houston": 1547,
-        "houston|los angeles": 1547,
       };
 
       const currentYear = new Date().getFullYear();
@@ -400,7 +376,7 @@ cat > /app/index.html <<'EOF'
           return;
         }
 
-        const models = vehicleRates[make]?.models || [];
+        const models = vehicleData[make]?.models || [];
         for (const m of models) {
           const opt = document.createElement("option");
           opt.value = m;
@@ -413,35 +389,6 @@ cat > /app/index.html <<'EOF'
 
       function normalizeLocation(value) {
         return value.trim().toLowerCase().replace(/\s+/g, " ");
-      }
-
-      function formatLocation(value) {
-        return normalizeLocation(value)
-          .split(" ")
-          .filter(Boolean)
-          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-          .join(" ");
-      }
-
-      function getDistanceMiles(pickupValue, deliveryValue) {
-        const key = `${normalizeLocation(pickupValue)}|${normalizeLocation(deliveryValue)}`;
-        return routeDistances[key] || 900;
-      }
-
-      function calculateQuote(details) {
-        const rate = vehicleRates[details.make];
-        const distanceMiles = getDistanceMiles(details.pickup, details.delivery);
-        const vehicleAge = Math.max(0, currentYear - Number(details.year));
-
-        return Math.round(rate.baseFee + distanceMiles * rate.mileageRate + vehicleAge * 12);
-      }
-
-      function formatCurrency(amount) {
-        return new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-          maximumFractionDigits: 0,
-        }).format(amount);
       }
 
       tabDestination.addEventListener("click", () => {
@@ -459,6 +406,13 @@ cat > /app/index.html <<'EOF'
         const d = delivery.value.trim();
 
         if (!p || !d) {
+          step1Error.textContent = "Please enter both pickup and delivery locations.";
+          step1Error.classList.add("show");
+          return;
+        }
+
+        if (normalizeLocation(p) === normalizeLocation(d)) {
+          step1Error.textContent = "Pickup and delivery must be different locations.";
           step1Error.classList.add("show");
           return;
         }
@@ -470,7 +424,7 @@ cat > /app/index.html <<'EOF'
 
       makeSelect.addEventListener("change", () => {
         populateModels(makeSelect, modelSelect);
-        quoteSummary.hidden = true;
+        vehicleSuccess.classList.remove("show");
       });
 
       saveButton.addEventListener("click", () => {
@@ -479,29 +433,16 @@ cat > /app/index.html <<'EOF'
         const model = modelSelect.value;
 
         const validYear = Number.isInteger(year) && year >= 1980 && year <= currentYear;
-        const validModel = Boolean(make && model && vehicleRates[make]?.models.includes(model));
+        const validModel = Boolean(make && model && vehicleData[make]?.models.includes(model));
 
         if (!validYear || !validModel) {
           vehicleError.classList.add("show");
-          quoteSummary.hidden = true;
+          vehicleSuccess.classList.remove("show");
           return;
         }
 
         vehicleError.classList.remove("show");
-
-        const details = {
-          pickup: pickup.value.trim(),
-          delivery: delivery.value.trim(),
-          year,
-          make,
-          model,
-        };
-        const amount = calculateQuote(details);
-
-        quoteRoute.textContent = `${formatLocation(details.pickup)} to ${formatLocation(details.delivery)}`;
-        quoteVehicle.textContent = `${details.year} ${details.make} ${details.model}`;
-        quoteAmount.textContent = formatCurrency(amount);
-        quoteSummary.hidden = false;
+        vehicleSuccess.classList.add("show");
       });
 
       populateModels(makeSelect, modelSelect);

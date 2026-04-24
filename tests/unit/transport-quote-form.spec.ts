@@ -47,13 +47,15 @@ describe("transport quote form markup contract", () => {
   });
 
   /**
-   * Contract: step-one validation should surface a single clear error string, and the year field
-   * should be wired to a datalist id the tests assert on.
+   * Contract: step-one and step-two validation copy, success confirmation, and the year datalist hook.
    */
-  it("includes validation copy and the year datalist hook", () => {
+  it("includes validation messages, Success confirmation, and the year datalist hook", () => {
     const html = readHtml();
 
     expect(html).toMatch(/Please enter both pickup and delivery locations\.?/);
+    expect(html).toMatch(/Pickup and delivery must be different locations\.?/);
+    expect(html).toMatch(/Please select a valid year, make, and model\.?/);
+    expect(html).toContain("Success!");
     expect(html).toMatch(new RegExp(`list=${quote}vehicle-year-options${quote}`));
   });
 
@@ -71,34 +73,6 @@ describe("transport quote form markup contract", () => {
     expect(html).toContain("Tacoma");
     expect(html).toContain("populateModels");
     expect(html).toContain("for (let year = currentYear; year >= 1980; year -= 1)");
-  });
-
-  /**
-   * Contract: quote calculation must be implemented from deterministic in-page rate and route data,
-   * not improvised in the click handler or fetched at runtime.
-   */
-  it("includes deterministic quote-calculation data and result hooks", () => {
-    const html = readHtml();
-
-    expect(html).toContain("calculateQuote");
-    expect(html).toContain("baseFee");
-    expect(html).toContain("mileageRate");
-    expect(html).toContain("routeDistances");
-    expect(html).toContain("1547");
-    expect(html).toContain("Estimated transport quote");
-    expect(html).toMatch(/Please select a valid year, make, and model\.?/);
-    expect(html).toMatch(new RegExp(`aria-live=${quote}polite${quote}`));
-  });
-
-  /**
-   * Contract: route lookup must normalize case + whitespace without requiring a specific
-   * helper-function name; the browser tests verify the user-visible normalized route.
-   */
-  it("includes route normalization logic for case/whitespace tolerance", () => {
-    const html = readHtml();
-
-    expect(html).toMatch(/toLowerCase\(\)/);
-    expect(html).toMatch(/replace\(\s*\/\\s\+\/g/);
   });
 
   /**

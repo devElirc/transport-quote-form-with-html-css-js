@@ -15,7 +15,7 @@ codebase_size = "minimal"
 # Coding languages used in the oracle solution or required by the agent
 languages = [ "bash", "html", "css", "javascript" ]
 # For tool_specific, api_integration, and db_interaction subcategories, please include specific tool, api framework, or database software
-tags = [ "playwright", "static-html", "multi-step-form", "dependent-dropdown", "form-validation", "quote-calculation" ]
+tags = [ "playwright", "static-html", "multi-step-form", "dependent-dropdown", "form-validation", "vitest" ]
 # Estimated time to complete (minutes)
 expert_time_estimate_min = 70
 junior_time_estimate_min = 140
