@@ -32,7 +32,9 @@ test("users can progress to vehicle details and load dependent models", async ({
   await expect(page.getByRole("heading", { name: /vehicle details/i })).toBeVisible();
   await expect(modelSelect).toBeDisabled();
 
-  const currentYear = new Date().getFullYear().toString();
+  const currentYearNum = new Date().getFullYear();
+  const currentYear = String(currentYearNum);
+  await expect(page.locator("#vehicle-year-options option")).toHaveCount(currentYearNum - 1980 + 1);
   await expect(page.locator("#vehicle-year-options option").first()).toHaveAttribute("value", currentYear);
   await expect(page.locator("#vehicle-year-options option").last()).toHaveAttribute("value", "1980");
 

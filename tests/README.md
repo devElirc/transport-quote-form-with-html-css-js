@@ -1,6 +1,17 @@
 ## Test Suite
 
-This task is verified with both unit and E2E tests.
+This task is verified with **Vitest** (static `/app/index.html`), **Playwright** (browser), a small **Python** module, and an **inline Playwright smoke** block inside `tests/test.sh` so reviewers who only read `test.sh` still see exercised UX (not only `grep` literals).
+
+### Behavior coverage (where each requirement is tested)
+
+| Requirement | `tests/test.sh` smoke | Vitest `unit/` | Playwright `e2e/` |
+| --- | --- | --- | --- |
+| Same-city pickup/delivery after normalization | yes | copy in HTML | `rejects same-city pickup and delivery` |
+| Step 1 blank / whitespace-only | yes (blank) | copy in HTML | `validates blank…` / `whitespace-only…` |
+| Step 2 validation + `Success!` | yes | copy in HTML | `shows validation…` |
+| Year datalist 1980 → current year (DOM count + bounds) | yes | `list=` + loop substring | `load dependent models` |
+| Model disabled → enable after make; `Select model` default | yes | regex on static HTML | `load dependent models` / `clearing the vehicle make…` |
+| Out-of-range years, tamper, etc. | — | — | dedicated e2e tests |
 
 - `tests/unit/transport-quote-form.spec.ts`
   Checks the static `/app/index.html` contract: title, tab roles, labels, required literals (`Toyota`, models, `populateModels`, year loop), validation copy, `Success!`, and no external script/CSS fetches.
