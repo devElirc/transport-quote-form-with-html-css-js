@@ -1,17 +1,17 @@
 ## Test Suite
 
-This task is verified with **Vitest** (static `/app/index.html`), **Playwright** (browser), a small **Python** module, and an **inline Playwright smoke** block inside `tests/test.sh` so reviewers who only read `test.sh` still see exercised UX (not only `grep` literals).
+This task is verified with **Vitest** (static `/app/index.html`), **Playwright** (`tests/e2e/`), a small **Python** module (`tests/test_outputs.py`), and **lightweight grep checks** in `tests/test.sh` (required literals, document title, `role=tablist`) before `npm test`. Browser behavior is **not** duplicated in `test.sh`; it lives only in the E2E spec.
 
 ### Behavior coverage (where each requirement is tested)
 
-| Requirement | `tests/test.sh` smoke | Vitest `unit/` | Playwright `e2e/` |
+| Requirement | Vitest `unit/` | Playwright `e2e/` | `test.sh` grep (strings / markup) |
 | --- | --- | --- | --- |
-| Same-city pickup/delivery after normalization | yes | copy in HTML | `rejects same-city pickup and delivery` |
-| Step 1 blank / whitespace-only | yes (blank) | copy in HTML | `validates blank…` / `whitespace-only…` |
-| Step 2 validation + `Success!` | yes | copy in HTML | `shows validation…` |
-| Year datalist 1980 → current year (DOM count + bounds) | yes | `list=` + loop substring | `load dependent models` |
-| Model disabled → enable after make; `Select model` default | yes | regex on static HTML | `load dependent models` / `clearing the vehicle make…` |
-| Out-of-range years, tamper, etc. | — | — | dedicated e2e tests |
+| Same-city pickup/delivery after normalization | message substring in HTML | `rejects same-city pickup and delivery` | same-city message literal |
+| Step 1 blank / whitespace-only | copy in HTML | `validates blank…` / `whitespace-only…` | step-1 message literal |
+| Step 2 validation + `Success!` | copy in HTML | `shows validation…` | validation + `Success!` literals |
+| Year datalist 1980 → current year | `list=` + loop substring | `load dependent models` (count + bounds) | year loop substring |
+| Model disabled / `Select model` / dependent make→model | regex on static HTML | `load dependent models` / `clearing the vehicle make…` | `populateModels`, Toyota models |
+| Out-of-range years, tamper, etc. | — | dedicated e2e tests | — |
 
 - `tests/unit/transport-quote-form.spec.ts`
   Checks the static `/app/index.html` contract: title, tab roles, labels, required literals (`Toyota`, models, `populateModels`, year loop), validation copy, `Success!`, and no external script/CSS fetches.
